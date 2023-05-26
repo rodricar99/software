@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  db:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data/db:/data/db
+  app_old:
+    build: ./app_old
+    ports:
+      - "6100:6100"
+    depends_on:
+      - db
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_RUN_HOST=0.0.0.0
+  app_new:
+    build: ./app_new
+    ports:
+      - "6200:6200"
+    depends_on:
+      - db
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_RUN_HOST=0.0.0.0
+  nginx:
+    build: ./nginx
+    ports:
+      - "89:89"
+    depends_on:
+      - app_old
+      - app_new
